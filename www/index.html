@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Leisure</title>
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+    <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <link href='https://fonts.googleapis.com/css?family=Raleway:800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic' rel='stylesheet' type='text/css'>
+	
+    <script src="js/vendor/jquery-1.11.1.min.js"></script>
+	<script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    <script src="js/data.js"></script>
+</head>
+<body>
+    <div id="header">
+        <h1>
+		Leisure
+	   </h1>
+    </div>
+    <article>
+        <div id="subheader">
+            
+        </div>
+        <div id="menu">
+            <h2><a href="#" onclick="categorySift(this.id)" id="artsAndCrafts">Arts & Crafts</a></h2><br>
+            <h2><a href="#" onclick="categorySift(this.id)" id="collection">Collection</a></h2><br>
+            <h2><a href="#" onclick="categorySift(this.id)" id="foodAndDrink">Food & Drink</a></h2><br>
+            <h2><a href="#" onclick="categorySift(this.id)" id="games">Games</a></h2><br>
+            <h2><a href="#" onclick="categorySiftPlace(this.id)" id="indoor">Indoor</a></h2><br>
+            <h2><a href="#" onclick="categorySift(this.id)" id="music">Music</a></h2><br>
+            <h2><a href="#" onclick="categorySiftPlace(this.id)" id="outdoor">Outdoor</a></h2><br>
+            <h2><a href="#" onclick="categorySift(this.id)" id="sports">Sports</a></h2>
+        </div>
+        <div id="buttons">
+            <a href="#" class="quiz" onclick="welcome()">
+                <b>Find the perfect hobby for you.</b><br>
+                <i>Take the quiz now ></i>
+            </a>
+        </div>
+        <div id="indvSports">
+        
+        </div>
+        <div id="myHobbiesSection">
+            
+        </div>
+    </article>
+    <div id="quizBackground">
+        <h1 id="quizTitle">
+		      
+	    </h1>
+        <h2 id="question">
+            
+        </h2>
+        <div id="options">
+            
+        </div>
+    </div>
+    <div id="confirmationBox">
+        <h3>
+            Are you sure you want to delete this task?
+        </h3>
+        <input type="button" value="No" id="no" />
+        <input type="button" value="Yes" id="yesToDelete" />
+    </div>
+    <div id="hobbyAddedBox">
+        <h3>
+            
+        </h3>
+    </div>
+    <footer>
+        <a href="index.html"><img src="img/search.png"/></a>
+        <a href="#" onclick="myHobbiesPage()"><img src="img/profile.png"/></a>
+        <a href="#" onclick="welcome()"><img src="img/quiz.png"/></a>
+    </footer>
+</body>
+    <script>            
+        //Alphabetical Order
+        function compareStrings(a, b) {
+              a = a.toLowerCase();
+              b = b.toLowerCase();
+
+          return (a < b) ? -1 : (a > b) ? 1 : 0;
+        }
+
+        data.sort(function(a, b) {
+            return compareStrings(a.id, b.id);
+        })
+
+        
+        //arrays
+        var myHobbies = [];
+        var hobbiesList = [];
+         var quizAnswers = [];
+        
+        //Show hobbies on explore
+        function loadHobbies(){
+            if(localStorage.getItem("savedHobbies") != null) {
+                hobbiesList = JSON.parse(localStorage.getItem("savedHobbies"));
+            } else {
+                hobbiesList = new Array();
+            }
+            myHobbies = hobbiesList;
+            $("#indvSports").empty();
+            $("#question").empty();
+            $("#options").empty();
+            $("#myHobbiesSection").empty();
+            $("#quizBackground").removeClass("active");
+            $("#subheader").html("<h2>Explore</h2><div id='searchMenu'><form method='get' action='input' id='searchbox' action=''><input id='formInput' type='text' placeholder='search'></form><input type='image' id='submit' onclick='search()' src='img/search.png' alt='Submit'/><img id='menuButton' src='img/menu.png'></div>");
+            
+            for (i = 0; i < data.length; i++) {
+                $("#buttons").append("<a href='#' class='block' id='data[i].id' onclick='loadPage("+i+")'>" + data[i].id + "</a>");
+            }
+        }
+        window.onload = loadHobbies();
+        
+        //Show and Hide Menu
+        var menu = $('#menu'), but = $('#menuButton');
+        menu.hide();
+$(document).on('click', '*', function(evt) {
+    evt.stopPropagation(); //<-- stop the event propagating to ancestral elements
+    if ($(this).is(but))   //<-- on button click, toggle visibility of menu
+        menu.toggle();
+    else if (!$(this).closest(menu).length) //<-- on click outside, hide menu
+        menu.hide();
+});
+        
+        //Sift and display categories
+        function categorySift(id) {
+            menu.hide();
+            $('#buttons').empty();
+            var categoryId = id;
+            
+            for (i = 0; i < data.length; i++) {
+                if (data[i].category == categoryId) {
+                    $("#buttons").append("<a href='#' class='block' id='data[i].id' onclick='loadPage("+i+")'>" + data[i].id + "</a>");
+               }
+            }
+        }
+        
+        //Sift and display categories for indoor/outdoor
+        function categorySiftPlace(id) {
+            menu.hide();
+            var categoryId = id;
+            
+            $('#buttons').empty();
+            
+            for (i = 0; i < data.length; i++) {
+                if (data[i].place == categoryId) {
+                    $("#buttons").append("<a href='#' class='block' id='data[i].id' onclick='loadPage("+i+")'>" + data[i].id + "</a>");
+               }
+            }
+        }
+        
+        $("#formInput").keyup(function(event){
+            if(event.keyCode === 13){
+                search();
+            }
+        });
+        
+        //Search
+        function search(){
+            var formInput = document.getElementById("formInput").value.toLowerCase();
+            var count = 0;
+            
+            for (i = 0; i < data.length; i++) {
+                if (data[i].id.toLowerCase() == formInput) {
+                    count = count + 1;
+                    $("#buttons").html("<p id='results'>"+count+" results found for '" + formInput + "'&nbsp;&nbsp;&nbsp;<a href=''> X</a></p><a href='#' class='block' id='data[i].id' onclick='loadPage("+i+")'>" + data[i].id + "</a>");
+                    break;
+               }
+                else{
+                    $('#buttons').html("<p id='noResults'>No results found for '" + formInput + "'&nbsp;&nbsp;&nbsp;<a href=''> X</a></p>");
+                }
+            }        
+            document.getElementById("formInput").value='';
+        }
+        
+        //Individual pages
+        function loadPage(which) {
+            currentI = which;
+            $('#buttons').empty();
+            $("#myHobbiesSection").empty();
+            $("#question").empty();
+            $("#options").empty();
+            $("#quizBackground").removeClass("active");
+            $("#subheader").html("<style>#subheader{height:60px;}</style><h2><b>"+data[which].id+"</b><br>"+ data[which].categoryName +"</h2><a href='index.html'><img src='img/back.png' id='backButton'/></a><a href='#' onclick='addHobby("+currentI+")'><img src='img/add.png' id='addButton'/></a>");
+            $("#indvSports").html("<p>"+data[which].description+"</p><div id='level1'><h3>Skill Level: </h3><p id='skillDiv'>"+data[which].skillLevel+"</p></div><div id='level2'><h3>Activity Level: </h3><p id='activityDiv'>"+data[which].activity+"</p></div>");
+            
+            if (data[which].skillLevel == "easy"){
+                $("#skillDiv").css("background-color", "#8dbb3e");
+            }
+            else if (data[which].skillLevel == "medium"){
+                $("#skillDiv").css("background-color", "#d0d028");
+            }
+            else if (data[which].skillLevel == "hard"){
+                $("#skillDiv").css("background-color", "#ba4635");
+            }
+            
+            if (data[which].activity == "light"){
+                $("#activityDiv").css("background-color", "#8dbb3e");
+            }
+            else if (data[which].activity == "moderate"){
+                $("#activityDiv").css("background-color", "#d0d028");
+            }
+            else if (data[which].activity == "strenuous"){
+                $("#activityDiv").css("background-color", "#ba4635");
+            }
+        }
+        
+        //Individual pages(from My Hobbies page)
+        function loadPageMyHobby(which) {
+            currentI = which;
+            $('#buttons').empty();
+            $("#myHobbiesSection").empty();
+            $("#question").empty();
+            $("#options").empty();
+            $("#quizBackground").removeClass("active");
+            $("#subheader").html("<style>#subheader{height:60px;}</style><h2><b>"+myHobbies[which].id+"</b><br>"+ myHobbies[which].categoryName +"</h2><a href='#' onclick='myHobbiesPage()'><img src='img/back.png' id='backButton'/></a>");
+            $("#indvSports").html("<p>"+myHobbies[which].description+"</p><div id='level1'><h3>Skill Level: </h3><p id='skillDiv'>"+myHobbies[which].skillLevel+"</p></div><div id='level2'><h3>Activity Level: </h3><p id='activityDiv'>"+myHobbies[which].activity+"</p></div>");
+            
+            if (myHobbies[which].skillLevel == "easy"){
+                $("#skillDiv").css("background-color", "#8dbb3e");
+            }
+            else if (myHobbies[which].skillLevel == "medium"){
+                $("#skillDiv").css("background-color", "#d0d028");
+            }
+            else if (myHobbies[which].skillLevel == "hard"){
+                $("#skillDiv").css("background-color", "#ba4635");
+            }
+            
+            if (myHobbies[which].activity == "light"){
+                $("#activityDiv").css("background-color", "#8dbb3e");
+            }
+            else if (myHobbies[which].activity == "moderate"){
+                $("#activityDiv").css("background-color", "#d0d028");
+            }
+            else if (myHobbies[which].activity == "strenuous"){
+                $("#activityDiv").css("background-color", "#ba4635");
+            }
+        }
+        
+        
+        
+        //Add hobby
+        function addHobby(which) {
+            myHobbies.push({id: data[which].id, category: data[which].category, categoryName: data[which].categoryName, place: data[which].place, activity: data[which].activity, skillLevel: data[which].skillLevel, personality: data[which].personality, brain: data[which].brain, description: data[which].description});
+            localStorage.setItem("savedHobbies", JSON.stringify(myHobbies));
+//            alert("Added '"+ data[which].id +"' to My Hobbies!");
+            $("#hobbyAddedBox").html("Added '"+ data[which].id +"' to My Hobbies!");
+            $("#hobbyAddedBox").addClass("active");
+            setTimeout(function(){ $("#hobbyAddedBox").removeClass("active"); }, 2000);
+        }
+        
+        //My Hobbies Page
+        function myHobbiesPage(){
+            $("#myHobbiesSection").empty();
+            $("#question").empty();
+            $("#options").empty();
+            $("#quizBackground").removeClass("active");
+            $("article").css("height","inherit");
+            
+            hobbiesList = JSON.parse(localStorage.getItem("savedHobbies"));
+            
+            $("#subheader").html("<style>#subheader{height:30px;}</style><h2>My Hobbies</h2>");
+            $('#buttons').empty();
+            $("#indvSports").empty();
+            for (i = 0; i < hobbiesList.length; i++) {
+                $("#myHobbiesSection").append("<div class='blockMyHobbies' id='hobbiesList[i].id'><span  onclick='loadPageMyHobby("+i+")'>" + hobbiesList[i].id + "</span><a href='#' id='deleteButton' onclick='displayDeleteConfirmation("+i+")'>x</a></div>");
+            }
+            if (hobbiesList === undefined || hobbiesList.length == 0){
+                $("#myHobbiesSection").html("<h2 id='hobbiesh2'>Oh no, you don't have any hobbies saved! To save a hobby, go to it's page and click the '+' button.</h2><p id='exploreLink' onclick='loadHobbies()'><i>Explore hobbies ></i></p>");
+            }
+        }
+        
+        
+        function displayDeleteConfirmation(i) {
+        $("#confirmationBox").addClass("active");
+        
+        $("#confirmationBox input").unbind();
+            
+        $("#confirmationBox input").click(function() {
+            if(($(this).attr('id'))== "yesToDelete"){
+                myHobbies.splice(i,1);
+                hobbiesList.splice(i,1);
+                localStorage.setItem("savedHobbies", JSON.stringify(myHobbies));
+                $("#confirmationBox").removeClass("active");
+                myHobbiesPage();
+            } else{
+                $("#confirmationBox").removeClass("active");
+                myHobbiesPage();
+            }   
+        });
+    }
+        
+    
+        
+        
+        //Quiz stuff
+    
+    function welcome(){
+        $("#indvSports").empty();
+        $("#subheader").empty();
+        $("#buttons").empty();
+        $("#quizTitle").css("height","100px");
+//        $("#myHobbiesSection").empty();
+//        $("article").empty;
+        $("article").css("height","0px");
+        
+        $("#quizBackground").addClass("active");
+        $("#quizTitle").html("<b>What's the perfect hobby for you?</b><br>");
+        $("#question").html("Welcome! We're going to ask you a few questions to get to know your interests so we can pick out a hobby for you!");
+        $("#options").html("<button onclick='quizQ1()'>Get Started!</button>");
+        //output is light, moderate, or strenuous
+    }
+    
+    //Question 1
+    function quizQ1(){
+        $("#quizTitle").css("height","0px");
+        $("#quizTitle").empty();
+        $("#question").html("What level of physical activity are you looking for?");
+        $("#options").html("<p onclick='choose1(&quot;light&quot;)'>Light</p><p onclick='choose1(&quot;moderate&quot;)'>Moderate</p><p onclick='choose1(&quot;strenuous&quot;)'>Strenuous</p>");
+        //output is light, moderate, or strenuous
+    }
+    function choose1(choice1){
+        //Goes through all hobbies and finds ones that match the answer, then pushes them to array
+        for (i = 0; i < data.length; i++) {
+                if (data[i].activity == choice1) {
+                    quizAnswers.push({id: data[i].id, category: data[i].category, categoryName: data[i].categoryName, place: data[i].place, activity: data[i].activity, skillLevel: data[i].skillLevel, personality: data[i].personality, brain: data[i].brain, description: data[i].description});
+               }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice1);
+        quizQ2();
+    }
+
+    //Question 2
+    function quizQ2(){
+        $("#question").html("Where would you rather be?");
+        $("#options").html("<p onclick='choose2(&quot;indoor&quot;)'>Inside</p><p onclick='choose2(&quot;outdoor&quot;)'>Outside</p>");
+        //output is indoor or outdoor
+    }
+    function choose2(choice2){
+        for (i = 0; i < quizAnswers.length; i++) {
+                if (quizAnswers[i].place != choice2) {
+                    quizAnswers.splice(i,1);
+                }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice2);
+        quizQ3();
+    }
+    
+    //Question 3
+    function quizQ3(){
+        $("#question").html("How much of a challenge would you like?");
+        $("#options").html("<p onclick='choose3(&quot;easy&quot;)'>Easy</p><p onclick='choose3(&quot;medium&quot;)'>Medium</p><p onclick='choose3(&quot;hard&quot;)'>Hard</p>");
+        //output is easy, medium, or hard
+    }
+    function choose3(choice3){
+        for (i = 0; i < quizAnswers.length; i++) {
+                if (quizAnswers[i].skillLevel != choice3) {
+                    quizAnswers.splice(i,1);
+                }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice3);
+        quizQ4();
+    }
+    
+    //Question 4
+    function quizQ4(){
+        $("#question").html("Which of the following activities sound most enjoyable?");
+        $("#options").html("<p onclick='choose4(&quot;music&quot;)'>Listening to music</p><p onclick='choose4(&quot;foodAndDrink&quot;)'>Cooking a new dish</p><p onclick='choose4(&quot;game&quot;)'>Learning a new card game</p><p onclick='choose4(&quot;sports&quot;)'>Shooting hoops with friends</p><p onclick='choose4(&quot;collection&quot;)'>Thrift shopping</p><p onclick='choose4(&quot;artsAndCrafts&quot;)'>Creating a work of art</p>");
+        //output is easy, medium, or hard
+    }
+    function choose4(choice4){
+        for (i = 0; i < quizAnswers.length; i++) {
+                if (quizAnswers[i].category != choice4) {
+                    quizAnswers.splice(i,1);
+                }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice4);
+        quizQ5();
+    }
+    
+    //Question 5
+    function quizQ5(){
+        $("#question").html("Would you say you're more introverted or extroverted?");
+        $("#options").html("<p onclick='choose5(&quot;introverted&quot;)'>Introverted</p><p onclick='choose5(&quot;extroverted&quot;)'>Extroverted</p>");
+        //output is easy, medium, or hard
+    }
+    function choose5(choice5){
+        for (i = 0; i < quizAnswers.length; i++) {
+                if (quizAnswers[i].personality != choice5) {
+                    quizAnswers.splice(i,1);
+                }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice5);
+        quizQ6();
+    }
+    
+    //Question 6
+    function quizQ6(){
+        $("#question").html("Would you say you're more left-brained (logical and analytical) or right-brained (creative and emotional)?");
+        $("#options").html("<p onclick='choose6(&quot;left&quot;)'>Left</p><p onclick='choose6(&quot;right&quot;)'>Right</p>");
+        //output is easy, medium, or hard
+    }
+    function choose6(choice6){
+        for (i = 0; i < quizAnswers.length; i++) {
+                if (quizAnswers[i].brain != choice6) {
+                    quizAnswers.splice(i,1);
+                }
+            }
+        localStorage.setItem("savedAnswers", JSON.stringify(quizAnswers));
+//        alert(choice6);
+        displayResults();
+    }
+    
+        var randomInteger;
+    //Display Results
+    function displayResults(){
+        quizAnswers = JSON.parse(localStorage.getItem("savedAnswers"));
+        randomInteger = Math.floor((Math.random() * (quizAnswers.length-1)) + 0);
+        $("#question").empty();
+        $("#options").html("<p id='bigBold'><b>Your result is "+quizAnswers[randomInteger].id+"!<b></p><button id='learnMore' onclick='loadPageQuiz("+randomInteger+")'>Learn more!</button><br><br><br><br><h2 id='quizAgain' onclick='quizQ1()'><i>Take the quiz again</i></h2>");
+    }
+        
+        //Individual pages from quiz
+        function loadPageQuiz(which) {
+            currentI = which;
+            $('#buttons').empty();
+            $("#myHobbiesSection").empty();
+            $("#question").empty();
+            $("#options").empty();
+            $("#quizBackground").removeClass("active");
+            $("article").css("height","inherit");
+            $("#subheader").html("<style>#subheader{height:60px;}</style><h2><b>"+quizAnswers[which].id+"</b><br>"+ quizAnswers[which].categoryName +"</h2><a href='#' onclick='addHobbyQuiz("+currentI+")'><img src='img/add.png' id='addButton'/></a>");
+            $("#indvSports").html("<p>"+quizAnswers[which].description+"</p><div id='level1'><h3>Skill Level: </h3><p id='skillDiv'>"+quizAnswers[which].skillLevel+"</p></div><div id='level2'><h3>Activity Level: </h3><p id='activityDiv'>"+quizAnswers[which].activity+"</p></div>");
+            
+            if (quizAnswers[which].skillLevel == "easy"){
+                $("#skillDiv").css("background-color", "#8dbb3e");
+            }
+            else if (quizAnswers[which].skillLevel == "medium"){
+                $("#skillDiv").css("background-color", "#d0d028");
+            }
+            else if (quizAnswers[which].skillLevel == "hard"){
+                $("#skillDiv").css("background-color", "#ba4635");
+            }
+            
+            if (quizAnswers[which].activity == "light"){
+                $("#activityDiv").css("background-color", "#8dbb3e");
+            }
+            else if (quizAnswers[which].activity == "moderate"){
+                $("#activityDiv").css("background-color", "#d0d028");
+            }
+            else if (quizAnswers[which].activity == "strenuous"){
+                $("#activityDiv").css("background-color", "#ba4635");
+            }
+        }
+        
+        //Add hobby from quiz
+        function addHobbyQuiz(which) {
+            myHobbies.push({id: quizAnswers[which].id, category: quizAnswers[which].category, categoryName: quizAnswers[which].categoryName, place: quizAnswers[which].place, activity: quizAnswers[which].activity, skillLevel: quizAnswers[which].skillLevel, personality: quizAnswers[which].personality, brain: quizAnswers[which].brain, description: quizAnswers[which].description});
+            localStorage.setItem("savedHobbies", JSON.stringify(myHobbies));
+//            alert("Added '"+ data[which].id +"' to My Hobbies!");
+            $("#hobbyAddedBox").html("Added '"+ quizAnswers[which].id +"' to My Hobbies!");
+            $("#hobbyAddedBox").addClass("active");
+            setTimeout(function(){ $("#hobbyAddedBox").removeClass("active"); }, 2000);
+        }
+        
+        //return
+        //Make responsive
+        
+        //Question: Why isn't addHobbies working in cordova
+    </script>
+</html>
